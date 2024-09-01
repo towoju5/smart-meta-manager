@@ -1,0 +1,54 @@
+{
+    "name": "towoju5/smart-meta-manager",
+    "description": "Simple smart meta manage for laravel/middey Technology",
+    "keywords": [
+        "towoju5",
+        "smart meta manager"
+    ],
+    "homepage": "https://github.com/towoju5/smart meta manager",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "EMMANUEL TOWOJU",
+            "email": "towojuads@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/support": "^8.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Towoju5\\SmartMetaManager\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Towoju5\\SmartMetaManager\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Towoju5\\SmartMetaManager\\SmartMetaManagerServiceProvider"
+            ],
+            "aliases": {
+                "SmartMetaManager": "Towoju5\\SmartMetaManager\\SmartMetaManagerFacade"
+            }
+        }
+    }
+}
