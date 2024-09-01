@@ -2,8 +2,6 @@
 
 namespace Towoju5\SmartMetaManager\Models;
 
-use App\Models\User;
-// use App\Modules\user\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class MetaDataModel extends Model
@@ -17,6 +15,6 @@ class MetaDataModel extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(config('meta_models.user'));
     }
 }

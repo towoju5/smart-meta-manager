@@ -1,6 +1,6 @@
 <?php
 
-namespace Towoju5\SmartMetaManager\Trait\Models;
+namespace Towoju5\SmartMetaManager\Trait;
 
 use Towoju5\SmartMetaManager\MetaDataModel;
 use Towoju5\SmartMetaManager\Models\MetaData;

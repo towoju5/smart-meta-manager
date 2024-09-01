@@ -1,8 +1,8 @@
 # Very short description of the package
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/towoju5/smart meta manager.svg?style=flat-square)](https://packagist.org/packages/towoju5/smart meta manager)
-[![Total Downloads](https://img.shields.io/packagist/dt/towoju5/smart meta manager.svg?style=flat-square)](https://packagist.org/packages/towoju5/smart meta manager)
-![GitHub Actions](https://github.com/towoju5/smart meta manager/actions/workflows/main.yml/badge.svg)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/towoju5/smart-meta-manager.svg?style=flat-square)](https://packagist.org/packages/towoju5/smart-meta-manager)
+[![Total Downloads](https://img.shields.io/packagist/dt/towoju5/smart-meta-manager.svg?style=flat-square)](https://packagist.org/packages/towoju5/smart-meta-manager)
+![GitHub Actions](https://github.com/towoju5/smart-meta-manager/actions/workflows/main.yml/badge.svg)
 
 This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
 
@@ -11,7 +11,7 @@ This is where your description should go. Try and limit it to a paragraph or two
 You can install the package via composer:
 
 ```bash
-composer require towoju5/smart meta manager
+composer require towoju5/smart-meta-manager
 ```
 
 ## Usage
