@@ -101,5 +101,29 @@ class SmartMetaManager
 
         return $modelClass;
     }
+
+    private function api_error_response(string $message = '', mixed $data = [], string|int $code = 500)
+    {
+        $response = [
+            "status_code" => $code,
+            "status" => "failed",
+            "message" => $message,
+            "error" => $data,
+        ];
+
+        return response()->json($response, $code);
+    }
+
+    private function api_success_response(string $message = '', mixed $data = [], string|int $code = 200)
+    {
+        $response = [
+            "status_code" => $code,
+            "status" => "success",
+            "message" => $message,
+            "data" => $data,
+        ];
+
+        return response()->json($response, $code);
+    }
 }
 
