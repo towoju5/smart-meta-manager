@@ -16,7 +16,7 @@ class CreateMetaDataTable extends Migration
         Schema::create('meta_data_models', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('metadatable_type');
+            $table->string('metadatable_type')->nullable();
             $table->unsignedBigInteger('metadatable_id')->nullable();
             $table->string('key');
             $table->text('value');

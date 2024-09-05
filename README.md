@@ -10,20 +10,18 @@ Nellalink SmartMetaManager is a powerful Laravel package designed to simplify th
 
 - [Installation](#installation)
 - [Configuration](#configuration)
-
 - [Usage](#usage)
     - [Model Setup](#model-setup)
     - [API Endpoints](#api-endpoints)
     - [Authentication](#authentication)
 - [MetaDataTrait](#metadatatrait)
-
-- [Nellalink SmartMetaManager Controller](#SmartMetaManager-controller)
+- [SmartMetaManager Controller](#smartmetamanager-controller)
 - [API Usage Examples](#api-usage-examples)
 - [Error Handling](#error-handling)
 - [Best Practices](#best-practices)
 - [Performance Considerations](#performance-considerations)
 - [Security](#security)
-- [Extending Nellalink SmartMetaManager](#extending-SmartMetaManager)
+- [Extending Nellalink SmartMetaManager](#extending-nellalink-smartmetamanager)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [Credits](#credits)
@@ -33,30 +31,30 @@ Nellalink SmartMetaManager is a powerful Laravel package designed to simplify th
 
 You can install the package via composer:
 
-```
+
 composer require towoju5/smart-meta-manager
-```
+
 
 After installation, publish the configuration file:
 
-```
-    php artisan vendor:publish --tag=smart-meta-manager-config
-```
+
+php artisan vendor:publish --tag=smart-meta-manager-config
+
 
 ## Configuration
 
 The configuration file `config/meta_models.php` allows you to specify which models can have associated metadata and set the authentication guard:
 
-```
-    return [
+
+return [
     'meta_data_models' => [
         'user' => App\Models\User::class,
         'product' => App\Models\Product::class,
         // Add more models as needed
     ],
     'auth_guard' => 'api',
-    ];
-```
+];
+
 
 ## Usage
 
@@ -65,14 +63,89 @@ The configuration file `config/meta_models.php` allows you to specify which mode
 To enable metadata functionality for a model, use the MetaDataTrait:
 
 ```
-use Towoju5\Nellalink SmartMetaManager\Trait\MetaDataTrait;
+use Towoju5\SmartMetaManager\Trait\MetaDataTrait;
 
 class User extends Model
 {
-  use MetaDataTrait;
-  // ... other model code
+    use MetaDataTrait;
+    // ... other model code
 }
 ```
+
+README documentation on how to access the traits from the models:
+
+# Accessing Traits in Models
+
+This guide explains how to use the MetaDataTrait in your models to manage metadata.
+
+## Setup
+
+1. Import the MetaDataTrait at the top of your model file:
+
+```
+use Towoju5\SmartMetaManager\Trait\MetaDataTrait;
+```
+
+2. Use the trait in your model:
+
+```
+class YourModel extends Model
+{
+    use MetaDataTrait;
+
+    // ...
+}
+```
+
+## Usage
+
+Once the trait is included in your model, you can use the following methods:
+
+### Setting Metadata
+
+```
+$model->setMeta('key', 'value');
+```
+
+### Getting Metadata
+
+```
+$value = $model->getMeta('key', 'default_value');
+```
+
+### Deleting Metadata
+
+```
+$model->deleteMeta('key');
+```
+
+### Getting All Metadata
+
+```
+$allMeta = $model->getAllMeta();
+```
+
+### Searching Metadata
+
+```
+$results = $model->searchMeta('search_term');
+```
+
+### Checking for Specific Metadata
+
+```
+$exists = $model->hasMetaKeyValue('key', 'value');
+```
+
+## Example
+
+```
+$user = User::find(1);
+$user->setMeta('preferences', json_encode(['theme' => 'dark']));
+$preferences = json_decode($user->getMeta('preferences'), true);
+```
+
+This trait provides a flexible way to add metadata to your models without modifying the database schema for each new piece of information you want to store.
 
 ### API Endpoints
 
@@ -103,9 +176,9 @@ The MetaDataTrait provides methods for interacting with metadata at the model le
 - `searchMeta($userId, $search)`
 - `hasMetaKeyValue($key, $value, $userId)`
 
-## Nellalink SmartMetaManager Controller
+## SmartMetaManager Controller
 
-The Nellalink SmartMetaManager controller handles API requests for metadata operations. Controller methods include:
+The SmartMetaManager controller handles API requests for metadata operations. Controller methods include:
 
 - `getModelMeta(Request $request, $model)`
 - `getAllUserMeta(Request $request)`

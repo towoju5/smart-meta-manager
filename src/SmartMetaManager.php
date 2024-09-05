@@ -157,17 +157,18 @@ class SmartMetaManager
     public function api_success_response($message, $data = null, $code = 200)
     {
         return response()->json([
-            'status' => 'success',
+            'status' => true,
+            "status_code" => $code,
             'message' => $message,
             'data' => $data
         ], $code);
     }
 
-    public function api_error_response(string $message = '', array $errors = [], string|int $code = 500)
+    public function api_error_response(string $message = '', array $errors = [], string|int $code = 400)
     {
         $response = [
+            "status" => false,
             "status_code" => $code,
-            "status" => "failed",
             "message" => $message,
             "errors" => $errors instanceof \Illuminate\Support\MessageBag ? $errors : new \Illuminate\Support\MessageBag($errors)
         ];

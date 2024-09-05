@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MetaDataModel extends Model
 {
-    protected $fillable = ['key', 'value', 'user_id'];
+    protected $fillable = ['key', 'value', 'user_id', 'metadatable_type', 'metadatable_id'];
 
     public function metadatable()
     {
