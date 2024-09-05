@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Towoju5\SmartMetaManager\AuthMiddleware;
 use Towoju5\SmartMetaManager\SmartMetaManager;
 
 /*
@@ -14,7 +15,7 @@ use Towoju5\SmartMetaManager\SmartMetaManager;
 |
 */
 
-Route::group(['prefix' => 'api/meta', 'middleware' => 'auth:' . config('meta_models.auth_guard')], function () {
+Route::group(['prefix' => 'api/meta', 'middleware' => [AuthMiddleware::class, 'auth:' . config('meta_models.auth_guard')]], function () {
     Route::get('{model}', [SmartMetaManager::class, 'getModelMeta']);
     Route::post('{model}', [SmartMetaManager::class, 'setMeta']);
     Route::get('{model}/search', [SmartMetaManager::class, 'searchMeta']);

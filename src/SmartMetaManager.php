@@ -7,23 +7,16 @@ use Illuminate\Support\Facades\Auth;
 
 class SmartMetaManager
 {
-    public function __construct()
-    {
-        if(auth()->check()) {
-            echo api_error_response("Unauthorized", ['error' => 'Please login to continue', 401]); exit;
-        }
-    }
-
-
     public function getModelMeta(Request $request, $model)
     {
         try {
             $modelClass = $this->getModelClass($model);
             $userId = Auth::id();
-            $allMeta = $modelClass::getAllMetaForUser($userId);
-            return $this->api_success_response('Meta data retrieved successfully', $allMeta);
+            $modelInstance = new $modelClass();
+            $meta = $modelInstance->getAllMetaForUser($userId);
+            return $this->api_success_response('Meta data retrieved successfully', $meta);
         } catch (\Exception $e) {
-            return $this->api_error_response('Error retrieving meta data', $e->getMessage());
+            return $this->api_error_response('Error retrieving meta data', ['error' => $e->getMessage()]);
         }
     }
 
@@ -33,14 +26,15 @@ class SmartMetaManager
             $userId = Auth::id();
             $allMeta = [];
             foreach (config('meta_models.meta_data_models') as $model => $class) {
-                $modelMeta = $class::getAllMetaForUser($userId);
+                $modelInstance = new $class();
+                $modelMeta = $modelInstance->getAllMetaForUser($userId);
                 if ($modelMeta->isNotEmpty()) {
                     $allMeta[$model] = $modelMeta;
                 }
             }
             return $this->api_success_response('All user meta data retrieved successfully', $allMeta);
         } catch (\Exception $e) {
-            return $this->api_error_response('Error retrieving all user meta data', $e->getMessage());
+            return $this->api_error_response('Error retrieving all user meta data', ['error' => $e->getMessage()]);
         }
     }
 
@@ -50,10 +44,11 @@ class SmartMetaManager
             $modelClass = $this->getModelClass($model);
             $userId = Auth::id();
             $search = $request->input('search');
-            $results = $modelClass::searchMeta($userId, $search);
-            return $this->api_success_response('Meta data search results', $results);
+            $modelInstance = new $modelClass();
+            $meta = $modelInstance->searchMeta($userId, $search);
+            return $this->api_success_response('Meta data search results', $meta);
         } catch (\Exception $e) {
-            return $this->api_error_response('Error searching meta data', $e->getMessage());
+            return $this->api_error_response('Error searching meta data', ['error' => $e->getMessage()]);
         }
     }
 
@@ -67,14 +62,15 @@ class SmartMetaManager
 
             $modelClass = $this->getModelClass($model);
             $userId = Auth::id();
-            $exists = $modelClass::hasMetaKeyValue($validated['key'], $validated['value'], $userId);
+            $modelInstance = new $modelClass();
+            $meta = $modelInstance->hasMetaKeyValue($validated['key'], $validated['value'], $userId);
 
             return $this->api_success_response(
-                $exists ? 'Meta key-value pair exists' : 'Meta key-value pair does not exist',
-                ['exists' => $exists]
+                $meta ? 'Meta key-value pair exists' : 'Meta key-value pair does not exist',
+                ['exists' => $meta]
             );
         } catch (\Exception $e) {
-            return $this->api_error_response('Error checking meta key-value pair', $e->getMessage());
+            return $this->api_error_response('Error checking meta key-value pair', ['error' => $e->getMessage()]);
         }
     }
 
@@ -89,11 +85,12 @@ class SmartMetaManager
 
             $modelClass = $this->getModelClass($model);
             $userId = Auth::id();
-            $meta = $modelClass::setMeta($validated['key'], $validated['value'], $userId);
+            $modelInstance = new $modelClass();
+            $meta = $modelInstance->setMeta($validated['key'], $validated['value'], $userId);
 
             return $this->api_success_response('Meta data stored successfully', $meta, 201);
         } catch (\Exception $e) {
-            return $this->api_error_response('Error storing meta data', $e->getMessage());
+            return $this->api_error_response('Error storing meta data', ['error' => $e->getMessage()]);
         }
     }
 
@@ -102,11 +99,15 @@ class SmartMetaManager
         try {
             $modelClass = $this->getModelClass($model);
             $userId = Auth::id();
-            $value = $modelClass::getMeta($key, $userId);
+            $modelInstance = new $modelClass();
+            $meta = $modelInstance->getMeta($key, $userId);
+            if ($meta === null) {
+                return $this->api_error_response('Meta data not found', ['key' => $key], 404);
+            }
 
-            return $this->api_success_response('Meta data retrieved successfully', ['key' => $key, 'value' => $value]);
+            return $this->api_success_response('Meta data retrieved successfully', ['key' => $key, 'value' => $meta]);
         } catch (\Exception $e) {
-            return $this->api_error_response('Error retrieving meta data', $e->getMessage());
+            return $this->api_error_response('Error retrieving meta data', ['error' => $e->getMessage()]);
         }
     }
 
@@ -119,11 +120,12 @@ class SmartMetaManager
 
             $modelClass = $this->getModelClass($model);
             $userId = Auth::id();
-            $meta = $modelClass::setMeta($key, $validated['value'], $userId);
+            $modelInstance = new $modelClass();
+            $meta = $modelInstance->setMeta($key, $validated['value'], $userId);
 
             return $this->api_success_response('Meta data updated successfully', $meta);
         } catch (\Exception $e) {
-            return $this->api_error_response('Error updating meta data', $e->getMessage());
+            return $this->api_error_response('Error updating meta data', ['error' => $e->getMessage()]);
         }
     }
 
@@ -132,11 +134,12 @@ class SmartMetaManager
         try {
             $modelClass = $this->getModelClass($model);
             $userId = Auth::id();
-            $modelClass::deleteMeta($key, $userId);
+            $modelInstance = new $modelClass();
+            $meta = $modelInstance->deleteMeta($key, $userId);
 
             return $this->api_success_response('Meta data deleted successfully');
         } catch (\Exception $e) {
-            return $this->api_error_response('Error deleting meta data', $e->getMessage());
+            return $this->api_error_response('Error deleting meta data', ['error' => $e->getMessage()]);
         }
     }
 
@@ -151,7 +154,7 @@ class SmartMetaManager
         return $modelClass;
     }
 
-    private function api_success_response($message, $data = null, $code = 200)
+    public function api_success_response($message, $data = null, $code = 200)
     {
         return response()->json([
             'status' => 'success',
@@ -160,12 +163,15 @@ class SmartMetaManager
         ], $code);
     }
 
-    private function api_error_response($message, $errors = null, $code = 400)
+    public function api_error_response(string $message = '', array $errors = [], string|int $code = 500)
     {
-        return response()->json([
-            'status' => 'error',
-            'message' => $message,
-            'errors' => $errors
-        ], $code);
+        $response = [
+            "status_code" => $code,
+            "status" => "failed",
+            "message" => $message,
+            "errors" => $errors instanceof \Illuminate\Support\MessageBag ? $errors : new \Illuminate\Support\MessageBag($errors)
+        ];
+
+        return response()->json($response, $code);
     }
 }

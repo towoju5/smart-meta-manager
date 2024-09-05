@@ -8,21 +8,28 @@ trait MetaDataTrait
 {
     public function metaData()
     {
-        $model = new MetaDataModel;
-        return $model;
+        return $this->morphMany(MetaDataModel::class, 'metadatable');
     }
 
     public function setMeta($key, $value, $userId)
     {
+        if (!$this->exists) {
+            $this->save();
+        }
+
         return $this->metaData()->updateOrCreate(
             ['key' => $key, 'user_id' => $userId],
-            ['value' => $value]
+            [
+                'value' => $value,
+                'metadatable_id' => $this->getKey(),
+                'metadatable_type' => get_class($this)
+            ]
         );
     }
 
     public function getMeta($key, $userId, $default = null)
     {
-        $meta = $this->metaData()->where('key', $key)->where('user_id', $userId)->first();
+        $meta = $this->metaData()->where('key', $key)->where('user_id', $userId)->first(['key', 'value']);
         return $meta ? $meta->value : $default;
     }
 
@@ -33,7 +40,7 @@ trait MetaDataTrait
 
     public function getAllMetaForUser($userId)
     {
-        return $this->metaData()->where('user_id', $userId)->get();
+        return $this->metaData()->where('user_id', $userId)->get(['key', 'value']);
     }
 
     public function searchMeta($userId, $search)
@@ -44,7 +51,7 @@ trait MetaDataTrait
                 $query->where('key', 'like', "%{$search}%")
                     ->orWhere('value', 'like', "%{$search}%");
             })
-            ->get();
+            ->get(['key', 'value']);
     }
 
     public function hasMetaKeyValue($key, $value, $userId)
@@ -55,5 +62,4 @@ trait MetaDataTrait
             ->where('user_id', $userId)
             ->exists();
     }
-
 }

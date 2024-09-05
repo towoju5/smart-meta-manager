@@ -17,7 +17,7 @@ class CreateMetaDataTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('metadatable_type');
-            $table->unsignedBigInteger('metadatable_id');
+            $table->unsignedBigInteger('metadatable_id')->nullable();
             $table->string('key');
             $table->text('value');
             $table->timestamps();
