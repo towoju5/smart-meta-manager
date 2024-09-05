@@ -21,7 +21,7 @@ class SmartMetaManagerServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/config.php' => config_path('smart-meta-manager.php'),
+                __DIR__.'/../config/meta_models.php' => config_path('meta_models.php'),
             ], 'config');
 
             // Publishing the views.
@@ -50,10 +50,10 @@ class SmartMetaManagerServiceProvider extends ServiceProvider
     public function register()
     {
         // Automatically apply the package configuration
-        $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'smart meta manager');
+        $this->mergeConfigFrom(__DIR__.'/../config/meta_models.php', 'smart-meta-manager');
 
         // Register the main class to use with the facade
-        $this->app->singleton('smart meta manager', function () {
+        $this->app->singleton('smart-meta-manager', function () {
             return new SmartMetaManager;
         });
     }

@@ -14,14 +14,13 @@ use Towoju5\SmartMetaManager\SmartMetaManager;
 |
 */
 
-Route::group(['prefix' => 'api/meta'], function () {
-    Route::prefix('{model}/{id}')->group(function () {
-        Route::get('/', [SmartMetaManager::class, 'index']);
-        Route::post('/', [SmartMetaManager::class, 'store']);
-        Route::get('{key}', [SmartMetaManager::class, 'show']);
-        Route::put('{key}', [SmartMetaManager::class, 'update']);
-        Route::delete('{key}', [SmartMetaManager::class, 'destroy']);
-    });
-
-    Route::get('user-meta', [SmartMetaManager::class, 'getUserMeta']);
+Route::group(['prefix' => 'api/meta', 'middleware' => 'auth:' . config('meta_models.auth_guard')], function () {
+    Route::get('{model}', [SmartMetaManager::class, 'getModelMeta']);
+    Route::post('{model}', [SmartMetaManager::class, 'setMeta']);
+    Route::get('{model}/search', [SmartMetaManager::class, 'searchMeta']);
+    Route::get('user/all', [SmartMetaManager::class, 'getAllUserMeta']);
+    Route::get('{model}/{key}', [SmartMetaManager::class, 'getMeta']);
+    Route::put('{model}/{key}', [SmartMetaManager::class, 'updateMeta']);
+    Route::delete('{model}/{key}', [SmartMetaManager::class, 'deleteMeta']);
+    Route::post('{model}/check', [SmartMetaManager::class, 'checkMetaKeyValue']);
 });

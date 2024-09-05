@@ -1,0 +1,100 @@
+{
+	"info": {
+		"name": "SmartMetaManager API",
+		"_postman_id": "smart-meta-manager-collection",
+		"description": "API endpoints for SmartMetaManager",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Model Meta",
+			"request": {
+				"url": "http://127.0.0.1:8001/api/meta/{{model}}",
+				"method": "GET",
+				"description": "Retrieve all meta data for a specific model for the authenticated user."
+			}
+		},
+		{
+			"name": "Set Meta",
+			"request": {
+				"url": "http://127.0.0.1:8001/api/meta/{{model}}",
+				"method": "POST",
+				"description": "Set a new meta key-value pair for the authenticated user.",
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"key\": \"example_key\",\n    \"value\": \"example_value\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Search Meta",
+			"request": {
+				"url": "http://127.0.0.1:8001/api/meta/{{model}}/search?search={{search_term}}",
+				"method": "GET",
+				"description": "Search for meta data by key or value for the authenticated user."
+			}
+		},
+		{
+			"name": "Get All User Meta",
+			"request": {
+				"url": "http://127.0.0.1:8001/api/meta/user/all",
+				"method": "GET",
+				"description": "Retrieve all meta data across all models for the authenticated user."
+			}
+		},
+		{
+			"name": "Get Specific Meta",
+			"request": {
+				"url": "http://127.0.0.1:8001/api/meta/{{model}}/{{key}}",
+				"method": "GET",
+				"description": "Retrieve a specific meta value for a given key and model for the authenticated user."
+			}
+		},
+		{
+			"name": "Update Meta",
+			"request": {
+				"url": "http://127.0.0.1:8001/api/meta/{{model}}/{{key}}",
+				"method": "PUT",
+				"description": "Update an existing meta value for a given key and model for the authenticated user.",
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"value\": \"updated_value\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Delete Meta",
+			"request": {
+				"url": "http://127.0.0.1:8001/api/meta/{{model}}/{{key}}",
+				"method": "DELETE",
+				"description": "Delete a specific meta key-value pair for a given model for the authenticated user."
+			}
+		},
+		{
+			"name": "Check Meta Key-Value",
+			"request": {
+				"url": "http://127.0.0.1:8001/api/meta/{{model}}/check",
+				"method": "POST",
+				"description": "Check if a specific key-value pair exists for the authenticated user.",
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"key\": \"example_key\",\n    \"value\": \"example_value\"\n}"
+				}
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "model",
+			"value": "user"
+		},
+		{
+			"key": "key",
+			"value": "age"
+		},
+		{
+			"key": "search_term",
+			"value": "age"
+		}
+	]
+}

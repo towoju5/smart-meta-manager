@@ -2,8 +2,7 @@
 
 namespace Towoju5\SmartMetaManager\Trait;
 
-use Towoju5\SmartMetaManager\MetaDataModel;
-use Towoju5\SmartMetaManager\Models\MetaData;
+use Towoju5\SmartMetaManager\Models\MetaDataModel;
 
 trait MetaDataTrait
 {
@@ -14,12 +13,10 @@ trait MetaDataTrait
 
     public function setMeta($key, $value, $userId)
     {
-        $meta = $this->metaData()->updateOrCreate(
+        return $this->metaData()->updateOrCreate(
             ['key' => $key, 'user_id' => $userId],
             ['value' => $value]
         );
-
-        return $meta;
     }
 
     public function getMeta($key, $userId, $default = null)
@@ -32,4 +29,30 @@ trait MetaDataTrait
     {
         return $this->metaData()->where('key', $key)->where('user_id', $userId)->delete();
     }
+
+    public function getAllMetaForUser($userId)
+    {
+        return $this->metaData()->where('user_id', $userId)->get();
+    }
+
+    public function searchMeta($userId, $search)
+    {
+        return $this->metaData()
+            ->where('user_id', $userId)
+            ->where(function ($query) use ($search) {
+                $query->where('key', 'like', "%{$search}%")
+                    ->orWhere('value', 'like', "%{$search}%");
+            })
+            ->get();
+    }
+
+    public function hasMetaKeyValue($key, $value, $userId)
+    {
+        return $this->metaData()
+            ->where('key', $key)
+            ->where('value', $value)
+            ->where('user_id', $userId)
+            ->exists();
+    }
+
 }

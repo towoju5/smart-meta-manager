@@ -2,128 +2,170 @@
 
 namespace Towoju5\SmartMetaManager;
 
-use App\Modules\user\Models\User;
-use Request;
-use Towoju5\SmartMetaManager\Models\MetaDataModel;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SmartMetaManager
 {
-    public function index(Request $request, $model, $id)
+    public function __construct()
     {
-        auth()->login(User::first());
-        $modelClass = $this->getModelClass($model);
-        $instance = $modelClass::findOrFail($id);
-        $userId = $request->user()->id;
-        return response()->json($instance->metaData()->where('user_id', $userId)->get());
-    }
-
-    public function store(Request $request, $model, $id)
-    {
-        $request->validate([
-            'key' => 'required|string',
-            'value' => 'required|string',
-        ]);
-
-        $modelClass = $this->getModelClass($model);
-        $instance = $modelClass::findOrFail($id);
-        $userId = $request->user()->id;
-        $meta = $instance->setMeta($request->key, $request->value, $userId);
-
-        return response()->json($meta, 201);
-    }
-
-    public function show(Request $request, $model, $id, $key)
-    {
-        $modelClass = $this->getModelClass($model);
-        $instance = $modelClass::findOrFail($id);
-        $userId = $request->user()->id;
-        $value = $instance->getMeta($key, $userId);
-
-        return response()->json(['key' => $key, 'value' => $value]);
-    }
-
-    public function update(Request $request, $model, $id, $key)
-    {
-        $request->validate([
-            'value' => 'required|string',
-        ]);
-
-        $modelClass = $this->getModelClass($model);
-        $instance = $modelClass::findOrFail($id);
-        $userId = $request->user()->id;
-        $meta = $instance->setMeta($key, $request->value, $userId);
-
-        return response()->json($meta);
-    }
-
-    public function destroy($model, $id, $key)
-    {
-        $modelClass = $this->getModelClass($model);
-        $instance = $modelClass::findOrFail($id);
-        $userId = request()->user()->id;
-        $instance->deleteMeta($key, $userId);
-
-        return response()->json(null, 204);
-    }
-
-    public function getUserMeta(Request $request)
-    {
-        $userId = $request->user()->id;
-        $metaData = MetaDataModel::where('user_id', $userId)->get();
-
-        $groupedMeta = $metaData->groupBy(function ($item) {
-            return get_class($item->metadatable) . '|' . $item->metadatable_id;
-        });
-
-        $result = [];
-        foreach ($groupedMeta as $key => $group) {
-            list($modelClass, $modelId) = explode('|', $key);
-            $shortName = array_search($modelClass, config('meta_models'));
-            $result[] = [
-                'model' => $shortName,
-                'id' => $modelId,
-                'meta' => $group->map(function ($item) {
-                    return ['key' => $item->key, 'value' => $item->value];
-                }),
-            ];
+        if(auth()->check()) {
+            echo api_error_response("Unauthorized", ['error' => 'Please login to continue', 401]); exit;
         }
+    }
 
-        return response()->json($result);
+
+    public function getModelMeta(Request $request, $model)
+    {
+        try {
+            $modelClass = $this->getModelClass($model);
+            $userId = Auth::id();
+            $allMeta = $modelClass::getAllMetaForUser($userId);
+            return $this->api_success_response('Meta data retrieved successfully', $allMeta);
+        } catch (\Exception $e) {
+            return $this->api_error_response('Error retrieving meta data', $e->getMessage());
+        }
+    }
+
+    public function getAllUserMeta(Request $request)
+    {
+        try {
+            $userId = Auth::id();
+            $allMeta = [];
+            foreach (config('meta_models.meta_data_models') as $model => $class) {
+                $modelMeta = $class::getAllMetaForUser($userId);
+                if ($modelMeta->isNotEmpty()) {
+                    $allMeta[$model] = $modelMeta;
+                }
+            }
+            return $this->api_success_response('All user meta data retrieved successfully', $allMeta);
+        } catch (\Exception $e) {
+            return $this->api_error_response('Error retrieving all user meta data', $e->getMessage());
+        }
+    }
+
+    public function searchMeta(Request $request, $model)
+    {
+        try {
+            $modelClass = $this->getModelClass($model);
+            $userId = Auth::id();
+            $search = $request->input('search');
+            $results = $modelClass::searchMeta($userId, $search);
+            return $this->api_success_response('Meta data search results', $results);
+        } catch (\Exception $e) {
+            return $this->api_error_response('Error searching meta data', $e->getMessage());
+        }
+    }
+
+    public function checkMetaKeyValue(Request $request, $model)
+    {
+        try {
+            $validated = $request->validate([
+                'key' => 'required|string',
+                'value' => 'required|string',
+            ]);
+
+            $modelClass = $this->getModelClass($model);
+            $userId = Auth::id();
+            $exists = $modelClass::hasMetaKeyValue($validated['key'], $validated['value'], $userId);
+
+            return $this->api_success_response(
+                $exists ? 'Meta key-value pair exists' : 'Meta key-value pair does not exist',
+                ['exists' => $exists]
+            );
+        } catch (\Exception $e) {
+            return $this->api_error_response('Error checking meta key-value pair', $e->getMessage());
+        }
+    }
+
+
+    public function setMeta(Request $request, $model)
+    {
+        try {
+            $validated = $request->validate([
+                'key' => 'required|string',
+                'value' => 'required|string',
+            ]);
+
+            $modelClass = $this->getModelClass($model);
+            $userId = Auth::id();
+            $meta = $modelClass::setMeta($validated['key'], $validated['value'], $userId);
+
+            return $this->api_success_response('Meta data stored successfully', $meta, 201);
+        } catch (\Exception $e) {
+            return $this->api_error_response('Error storing meta data', $e->getMessage());
+        }
+    }
+
+    public function getMeta(Request $request, $model, $key)
+    {
+        try {
+            $modelClass = $this->getModelClass($model);
+            $userId = Auth::id();
+            $value = $modelClass::getMeta($key, $userId);
+
+            return $this->api_success_response('Meta data retrieved successfully', ['key' => $key, 'value' => $value]);
+        } catch (\Exception $e) {
+            return $this->api_error_response('Error retrieving meta data', $e->getMessage());
+        }
+    }
+
+    public function updateMeta(Request $request, $model, $key)
+    {
+        try {
+            $validated = $request->validate([
+                'value' => 'required|string',
+            ]);
+
+            $modelClass = $this->getModelClass($model);
+            $userId = Auth::id();
+            $meta = $modelClass::setMeta($key, $validated['value'], $userId);
+
+            return $this->api_success_response('Meta data updated successfully', $meta);
+        } catch (\Exception $e) {
+            return $this->api_error_response('Error updating meta data', $e->getMessage());
+        }
+    }
+
+    public function deleteMeta(Request $request, $model, $key)
+    {
+        try {
+            $modelClass = $this->getModelClass($model);
+            $userId = Auth::id();
+            $modelClass::deleteMeta($key, $userId);
+
+            return $this->api_success_response('Meta data deleted successfully');
+        } catch (\Exception $e) {
+            return $this->api_error_response('Error deleting meta data', $e->getMessage());
+        }
     }
 
     private function getModelClass($shortName)
     {
-        $modelClass = config("meta_models.{$shortName}");
+        $modelClass = config("meta_models.meta_data_models.{$shortName}");
 
         if (!$modelClass) {
-            abort(404, "Model not found for '{$shortName}'");
+            throw new \Exception("Model not found for '{$shortName}'");
         }
 
         return $modelClass;
     }
 
-    private function api_error_response(string $message = '', mixed $data = [], string|int $code = 500)
+    private function api_success_response($message, $data = null, $code = 200)
     {
-        $response = [
-            "status_code" => $code,
-            "status" => "failed",
-            "message" => $message,
-            "error" => $data,
-        ];
-
-        return response()->json($response, $code);
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+            'data' => $data
+        ], $code);
     }
 
-    private function api_success_response(string $message = '', mixed $data = [], string|int $code = 200)
+    private function api_error_response($message, $errors = null, $code = 400)
     {
-        $response = [
-            "status_code" => $code,
-            "status" => "success",
-            "message" => $message,
-            "data" => $data,
-        ];
-
-        return response()->json($response, $code);
+        return response()->json([
+            'status' => 'error',
+            'message' => $message,
+            'errors' => $errors
+        ], $code);
     }
 }
-
