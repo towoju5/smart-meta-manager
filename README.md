@@ -23,7 +23,7 @@ Nellalink SmartMetaManager is a powerful Laravel package designed to simplify th
 - [Best Practices](#best-practices)
 - [Performance Considerations](#performance-considerations)
 - [Security](#security)
-- [Extending Nellalink SmartMetaManager](#extending-Nellalink SmartMetaManager)
+- [Extending Nellalink SmartMetaManager](#extending-SmartMetaManager)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [Credits](#credits)
