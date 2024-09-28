@@ -53,7 +53,7 @@ class SmartMetaManager
             $userId = Auth::id();
             $search = $request->input('q');
             $modelInstance = new $modelClass();
-            $meta = $modelInstance->searchMeta($userId, $search);
+            $meta = $modelInstance->searchMeta($search);
             return $this->api_success_response('Meta data search results', $meta);
         } catch (\Exception $e) {
             return $this->api_error_response('Error searching meta data', ['error' => $e->getMessage()]);
@@ -101,7 +101,6 @@ class SmartMetaManager
             return $this->api_error_response('Error storing meta data', ['error' => $e->getMessage()]);
         }
     }
-
     public function getMeta(Request $request, $model, $key)
     {
         try {
@@ -110,7 +109,7 @@ class SmartMetaManager
             $modelInstance = new $modelClass();
             $meta = $modelInstance->getMeta($key);
             // var_dump($meta); exit;
-            if (empty($meta) || $meta === null || $meta->isEmpty()) {
+            if (empty($meta) || $meta === null) {
                 // Add debugging statements
                 \Log::debug('Meta value:', ['meta' => $meta]);
                 \Log::debug('Meta type:', ['type' => gettype($meta)]);
