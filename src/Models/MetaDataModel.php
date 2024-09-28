@@ -17,4 +17,8 @@ class MetaDataModel extends Model
     {
         return $this->belongsTo(config('meta_models.user'));
     }
+
+    protected $hidden = [
+        "metadatable_id"
+    ];
 }

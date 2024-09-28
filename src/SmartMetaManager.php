@@ -46,7 +46,7 @@ class SmartMetaManager
     public function searchMeta(Request $request, $model)
     {
         try {
-            if(!$request->has('q')) {
+            if (!$request->has('q')) {
                 return $this->api_error_response('Error search query not provided', ['error' => "Error search query not provided"]);
             }
             $modelClass = $this->getModelClass($model);
@@ -54,6 +54,9 @@ class SmartMetaManager
             $search = $request->input('q');
             $modelInstance = new $modelClass();
             $meta = $modelInstance->searchMeta($search);
+            if (empty($meta) || $meta === null || is_countable($meta) && count($meta) < 1) {
+                return $this->api_error_response('Meta data not found', ['key' => $search], 404);
+            }
             return $this->api_success_response('Meta data search results', $meta);
         } catch (\Exception $e) {
             return $this->api_error_response('Error searching meta data', ['error' => $e->getMessage()]);
@@ -113,7 +116,7 @@ class SmartMetaManager
                 // Add debugging statements
                 \Log::debug('Meta value:', ['meta' => $meta]);
                 \Log::debug('Meta type:', ['type' => gettype($meta)]);
-                
+
                 if ($meta instanceof \Illuminate\Support\Collection) {
                     \Log::debug('Meta is a Collection. Is empty?', ['isEmpty' => $meta->isEmpty()]);
                 }
