@@ -19,7 +19,7 @@ Route::group(['prefix' => 'api/meta', 'middleware' => [AuthMiddleware::class, 'a
     Route::get('{model}', [SmartMetaManager::class, 'getModelMeta']);
     Route::post('{model}', [SmartMetaManager::class, 'setMeta']);
     Route::get('{model}/search', [SmartMetaManager::class, 'searchMeta']);
-    Route::get('user/all', [SmartMetaManager::class, 'getAllUserMeta']);
+    Route::get('user/all', [SmartMetaManager::class, 'getAllMeta']);
     Route::get('{model}/{key}', [SmartMetaManager::class, 'getMeta']);
     Route::put('{model}/{key}', [SmartMetaManager::class, 'updateMeta']);
     Route::delete('{model}/{key}', [SmartMetaManager::class, 'deleteMeta']);

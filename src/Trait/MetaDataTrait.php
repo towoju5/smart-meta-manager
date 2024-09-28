@@ -6,19 +6,13 @@ use Towoju5\SmartMetaManager\Models\MetaDataModel;
 
 trait MetaDataTrait
 {
-    public function metaData()
-    {
-        return $this->morphMany(MetaDataModel::class, 'metadatable');
-    }
-
     public function setMeta($key, $value)
     {
-        return $this->metaData()->updateOrCreate(
+        return MetaDataModel::updateOrCreate(
             [
                 'key' => $key,
                 'metadatable_type' => get_class($this),
-                'metadatable_id' => $this->id,
-                'user_id' => auth()->user()->id,
+                'user_id' => auth()->id(),
             ],
             ['value' => $value]
         );
@@ -26,36 +20,40 @@ trait MetaDataTrait
 
     public function getMeta($key, $default = null)
     {
-        $meta = $this->metaData()
-            ->where('key', $key)
+        $meta = MetaDataModel::where('key', $key)
             ->where('metadatable_type', get_class($this))
-            ->where('metadatable_id', $this->id)
+            ->where('user_id', auth()->id())
             ->first();
         return $meta ? $meta->value : $default;
     }
 
+    public function getAllMetaForUser()
+    {
+        return MetaDataModel::where('metadatable_type', get_class($this))
+            ->where('user_id', auth()->id())
+            ->get();
+    }
+
+
     public function deleteMeta($key)
     {
-        return $this->metaData()
-            ->where('key', $key)
+        return MetaDataModel::where('key', $key)
             ->where('metadatable_type', get_class($this))
-            ->where('metadatable_id', $this->id)
+            ->where('user_id', auth()->id())
             ->delete();
     }
 
     public function getAllMeta()
     {
-        return $this->metaData()
-            ->where('metadatable_type', get_class($this))
-            ->where('metadatable_id', $this->id)
+        return MetaDataModel::where('metadatable_type', get_class($this))
+            ->where('user_id', auth()->id())
             ->get();
     }
 
     public function searchMeta($search)
     {
-        return $this->metaData()
-            ->where('metadatable_type', get_class($this))
-            ->where('metadatable_id', $this->id)
+        return MetaDataModel::where('metadatable_type', get_class($this))
+            ->where('user_id', auth()->id())
             ->where(function ($query) use ($search) {
                 $query->where('key', 'like', "%{$search}%")
                     ->orWhere('value', 'like', "%{$search}%");
@@ -65,11 +63,20 @@ trait MetaDataTrait
 
     public function hasMetaKeyValue($key, $value)
     {
-        return $this->metaData()
-            ->where('key', $key)
+        return MetaDataModel::where('key', $key)
             ->where('value', $value)
             ->where('metadatable_type', get_class($this))
-            ->where('metadatable_id', $this->id)
+            ->where('user_id', auth()->id())
             ->exists();
+    }
+
+    public function whereMeta($conditions)
+    {
+        $query = MetaDataModel::where('user_id', auth()->id())
+            ->where('metadatable_type', get_class($this));
+        foreach ($conditions as $key => $value) {
+            $query->where('key', $key)->where('value', $value);
+        }
+        return $query->get();
     }
 }

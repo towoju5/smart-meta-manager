@@ -1,10 +1,10 @@
 <?php
 
-namespace Towoju5\SmartMetaManager\Trait;
+namespace Towoju5\SmartMetaManager\Traits;
 
 use Towoju5\SmartMetaManager\Models\MetaDataModel;
 
-trait MetaDataTrait
+trait _MetaDataTrait
 {
     public function metaData()
     {

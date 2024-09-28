@@ -19,7 +19,7 @@ return [
      */
     'meta_data_models' => [
         'user' => App\Modules\user\Models\User::class,
-        'product' => App\Models\Product::class,
+        // 'product' => App\Models\Product::class,
         // Add more models as needed
     ],
 

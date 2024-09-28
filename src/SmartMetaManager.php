@@ -20,7 +20,7 @@ class SmartMetaManager
         }
     }
 
-    public function getAllUserMeta(Request $request)
+    public function getAllMeta(Request $request)
     {
         try {
             $userId = Auth::id();
@@ -38,12 +38,20 @@ class SmartMetaManager
         }
     }
 
+    public function getAllUserMeta()
+    {
+        return $this->getAllMeta(request());
+    }
+
     public function searchMeta(Request $request, $model)
     {
         try {
+            if(!$request->has('q')) {
+                return $this->api_error_response('Error search query not provided', ['error' => "Error search query not provided"]);
+            }
             $modelClass = $this->getModelClass($model);
             $userId = Auth::id();
-            $search = $request->input('search');
+            $search = $request->input('q');
             $modelInstance = new $modelClass();
             $meta = $modelInstance->searchMeta($userId, $search);
             return $this->api_success_response('Meta data search results', $meta);
@@ -100,8 +108,17 @@ class SmartMetaManager
             $modelClass = $this->getModelClass($model);
             $userId = Auth::id();
             $modelInstance = new $modelClass();
-            $meta = $modelInstance->getMeta($key, $userId);
-            if ($meta === null) {
+            $meta = $modelInstance->getMeta($key);
+            // var_dump($meta); exit;
+            if (empty($meta) || $meta === null || $meta->isEmpty()) {
+                // Add debugging statements
+                \Log::debug('Meta value:', ['meta' => $meta]);
+                \Log::debug('Meta type:', ['type' => gettype($meta)]);
+                
+                if ($meta instanceof \Illuminate\Support\Collection) {
+                    \Log::debug('Meta is a Collection. Is empty?', ['isEmpty' => $meta->isEmpty()]);
+                }
+
                 return $this->api_error_response('Meta data not found', ['key' => $key], 404);
             }
 
